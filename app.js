@@ -14,18 +14,28 @@ const port = process.env.PORT
 app.use(express.urlencoded())
 app.use(express.json())
 app.use(cookieParser())
-const initialize_db = await connectDb()
+connectDb()
+    .then(()=> {
+            app.listen(port, () => {
+                console.log(`Server Running on port : ${port}`)
+            })
 
-// app.get('/' , (req,res)=>{
-//     res.status(200).json({"message" : "hello"})
-// })
+            app.on('error', (error) => {
+                console.log("Error in app", error)
+            })
+        }
+
+    )
+.catch((e)=>{
+    console.log("Error in DB connection", e)
+
+})
+
 
 app.use('/api/v1/users' , userRouter)
 app.use('/api/v1/article' , articleRouter)
 
-app.listen(port , ()=>{
-    console.log(`Server Running on port : ${port}`)
-})
+
 
 
 

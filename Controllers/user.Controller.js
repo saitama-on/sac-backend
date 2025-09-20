@@ -44,11 +44,13 @@ const LoginUser = async(req , res)=>{
 const RegisterUser = async(req,res)=>{
 
     try{
-        const {username , password , displayName , profileImage} = req.body
+        const {username , password , displayName } = req.body
 
-        if(username=="" || password == "" || displayName==""){
+        if(!username.trim() || !password.trim() || !displayName.trim() ){
             return res.status(400).json({message:"Empty fields!!"})
         }
+        const path =  req?.file?.path
+        // upload to ther server and get url
 
         
 
@@ -56,9 +58,12 @@ const RegisterUser = async(req,res)=>{
             username,
             password,
             displayName,
-            profileImage
+            profileImage:""//url
+
         })
-       
+       if(!new_user){
+        return res.status(400).json({message:"Couldn't create user!"})
+       }
 
         res.status(200).json({message:"Created!!" , user:new_user})
     }
