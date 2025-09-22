@@ -5,6 +5,14 @@ const ArticleSchema = new mongoose.Schema({
         type:mongoose.Types.ObjectId,
         ref:"User"
     },
+    authorName:{
+        type:String,
+        required:true
+    },
+    title:{
+        type:String,
+        required:true
+    },
     content:{
         type:String,
         required:true

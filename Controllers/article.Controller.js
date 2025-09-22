@@ -3,11 +3,21 @@ import {Article} from "../Models/article.Model.js"
 
 const createArticle = async(req , res) =>{
     try{
-        const {content , coverImage} = req.body
+        const {content , title, coverImage} = req.body
         const user = req.user
-        if(!user || content.length < 200){
-            return res.status(400).json({message:"Content too short!"})
+        if(!user || !title || content.length < 200){
+            return res.status(400).json({message:"Content too short! // empty fields"})
         }
+
+        let new_article = await Article.create({
+            title:title,
+            content:content,
+            author:user._id,
+            authorName:user.DisplayName,
+            coverImage:coverImage || ""
+        })
+
+        console.log(new_article)
 
         console.log(user)
         res.status(200).json({message:"ok" , user})
@@ -16,4 +26,11 @@ const createArticle = async(req , res) =>{
     }
 }
 
-export {createArticle}
+
+const getArticles = async(req,res)=>{
+    let article_array= []
+    const articles = await Article.find();
+    console.log(articles);
+}
+
+export {createArticle , getArticles}

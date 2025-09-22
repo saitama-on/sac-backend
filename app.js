@@ -33,7 +33,7 @@ connectDb()
 
 
 app.use('/api/v1/users' , userRouter)
-app.use('/api/v1/article' , articleRouter)
+app.use('/api/v1/articles' , articleRouter)
 
 
 
