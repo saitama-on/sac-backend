@@ -1,6 +1,7 @@
 import express from "express"
 import dotenv from "dotenv"
 import cookieParser from "cookie-parser"
+import CORS from "cors"
 import userRouter from "./Routes/user.Router.js"
 import articleRouter from "./Routes/article.Router.js"
 import {connectDb} from './db/db.js'
@@ -14,6 +15,7 @@ const port = process.env.PORT
 app.use(express.urlencoded())
 app.use(express.json())
 app.use(cookieParser())
+app.use(CORS())
 connectDb()
     .then(()=> {
             app.listen(port, () => {
