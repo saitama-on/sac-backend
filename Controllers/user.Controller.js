@@ -50,7 +50,7 @@ const RegisterUser = async(req,res)=>{
             return res.status(400).json({message:"Empty fields!!"})
         }
         const path =  req?.file?.path
-        // upload to ther server and get url
+
 
         
 
@@ -81,8 +81,106 @@ const LogoutUser = async(req,res,next)=>{
     })
     .json({message:"Logged out!"})
 }
+const UpdateUser = async (req,res)=>{
+
+    try{
+
+        const {username , displayName} = req.body
+        if(!username && !displayName) return res.status(401).json({status : 401 , message:"fill at least one detail"})
+        const user = await User.findById(req.user._id).select("-password")
+        if(!user) return  res.status(500).json({status : 500 , message:"user cant be fetched"})
+        if(username.trim()) user.username = username.trim()
+        if(displayName.trim()) user.displayName = displayName.trim()
+
+        await user.save({validateBeforeSave : false})
+        return res.status(200).json({
+            updatedUser:user,
+            message:"user updated"
+        })
+
+
+    } catch (e){
+        return res.status(500).json({
+            status:500,
+            message:e.message
+        })
+
+    }
+}
+const UpdateUserProfileImage = async (req,res) =>{
+    try {
+        const path = req?.file?.path
+        if(!path) return res.json({status : 500 , message:"multer error"})
+        //isko server pr krliyo upload and get the url or whatever
+
+        const updatedImage = await User.findByIdAndUpdate(req.user._id , {
+            $set:{
+                profileImage:"" // url daldiyoo
+            }
+        } , {new :true}).select("-password")
+        if(!updatedImage) return  res.json({status : 500 , message:"user cant be fetched"})
+
+        return res.status(200).json({
+            UpdatedData:updatedImage,
+            message:"updated profile image"
+        })
+
+    } catch (e) {
+        return res.status(500).json({
+            status:500,
+            message:e.message
+        })
+
+
+    }
+}
+const GetUserArticles = async (req,res) =>{
+    try {
+        const userArticles = await User.aggregate([{
+            $match:{
+                _id: new mongoose.Types.ObjectId(req.user._id)
+            }
+        },{
+            $lookup:{
+                from:"articles",
+                localField:"_id",
+                foreignField:"author",
+                pipeline:[{
+                    $project:{
+                        title:1,
+                        content:1,
+                        coverImage:1
+                    }
+                }],
+                as:"articles"
+            }
+        },{
+            $project:{
+                articles:1
+            }
+        }])
+        if(userArticles.length ===0 || userArticles[0].articles.length === 0) res.status(500).json({
+            status:500,
+            message:"your articles cant be fetched "
+        })
+
+        res.status(200).json({
+            userArticles:userArticles[0].articles, // array of article document mill jayenge
+            message:"here are your articles"
+        })
+
+    } catch (e) {
+        return res.status(500).json({
+            status:500,
+            message:e.message
+        })
 
 
 
 
-export {LoginUser , LogoutUser , RegisterUser}
+    }
+}
+
+
+
+export {LoginUser , LogoutUser , RegisterUser , UpdateUser , UpdateUserProfileImage ,GetUserArticles}
